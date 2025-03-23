@@ -27,7 +27,7 @@ This is a RESTful Banking Application built with **Spring Boot** and **MySQL**. 
 ### Steps to Run
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-username/banking-app.git
+   git clone https://github.com/yogeshkumar440/banking-app.git
    cd banking-app
    ```
 2. Configure MySQL database in `application.properties`:
@@ -57,8 +57,6 @@ This is a RESTful Banking Application built with **Spring Boot** and **MySQL**. 
 - **Transfer Funds:** `POST /api/accounts/transfer`
 - **Get Account Transactions:** `GET /api/accounts/{id}/transactions`
 
-## License
-This project is licensed under the MIT License.
 
 ## Author
 Yogesh Kumar - [GitHub Profile](https://github.com/Yogeshkumar440)
