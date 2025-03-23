@@ -10,7 +10,7 @@ This is a RESTful Banking Application built with **Spring Boot** and **MySQL**. 
 - RESTful API with JSON responses
 
 ## Technologies Used
-- Java 22
+- Java 21
 - Spring Boot
 - Spring Data JPA
 - Spring Web
@@ -20,7 +20,7 @@ This is a RESTful Banking Application built with **Spring Boot** and **MySQL**. 
 ## Installation
 
 ### Prerequisites
-- Java 22 installed
+- Java 21 installed
 - MySQL installed and running
 - Maven installed
 
@@ -61,5 +61,5 @@ This is a RESTful Banking Application built with **Spring Boot** and **MySQL**. 
 This project is licensed under the MIT License.
 
 ## Author
-Your Name - [GitHub Profile](https://github.com/your-username)
+Yogesh Kumar - [GitHub Profile](https://github.com/Yogeshkumar440)
 
