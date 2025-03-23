@@ -1,6 +1,7 @@
 package com.banking.app.service.impl;
 
 import com.banking.app.dto.AccountDto;
+import com.banking.app.dto.TransactionDto;
 import com.banking.app.dto.TransferFundDto;
 import com.banking.app.entity.Account;
 import com.banking.app.entity.Transaction;
@@ -76,6 +77,14 @@ public class AccountServiceImpl implements AccountService {
         account.setBalance(total);
         Account saved = accountRepository.save(account);
 
+        Transaction transaction = new Transaction();
+        transaction.setAccountId(id);
+        transaction.setAmount(amount);
+        transaction.setTransactionType(TRANSACTION_TYPE_WITHDRAW);
+        transaction.setTimestamp(LocalDateTime.now());
+
+        transactionRepository.save(transaction);
+
         return AccountMapper.mapToAccountDto(saved);
     }
 
@@ -102,6 +111,10 @@ public class AccountServiceImpl implements AccountService {
         Account toAccount = accountRepository.findById(transferFundDto.toAccountId())
                 .orElseThrow(() -> new AccountException("Account does not exists"));
 
+        if(fromAccount.getBalance() < transferFundDto.amount()){
+            throw  new RuntimeException("Insufficient amount!");
+        }
+
         // Debit the amount from fromAccount object
         fromAccount.setBalance(fromAccount.getBalance() - transferFundDto.amount());
 
@@ -110,6 +123,34 @@ public class AccountServiceImpl implements AccountService {
 
         accountRepository.save(fromAccount);
         accountRepository.save(toAccount);
+
+        Transaction transaction = new Transaction();
+        transaction.setAccountId(transferFundDto.fromAccountId());
+        transaction.setAmount(transferFundDto.amount());
+        transaction.setTransactionType(TRANSACTION_TYPE_TRANSFER);
+        transaction.setTimestamp(LocalDateTime.now());
+        transactionRepository.save(transaction);
+    }
+
+    @Override
+    public List<TransactionDto> getAccountTransaction(Long accountId) {
+
+        List<Transaction> transactions = transactionRepository.findByAccountIdOrderByTimestampDesc(accountId);
+
+        return transactions.stream()
+                .map((transaction) -> convertEntityToDto(transaction))
+                .collect(Collectors.toList());
+
+    }
+
+    private TransactionDto convertEntityToDto(Transaction transaction){
+        return new TransactionDto(
+                transaction.getId(),
+                transaction.getAccountId(),
+                transaction.getAmount(),
+                transaction.getTransactionType(),
+                transaction.getTimestamp()
+        );
     }
 
 }
