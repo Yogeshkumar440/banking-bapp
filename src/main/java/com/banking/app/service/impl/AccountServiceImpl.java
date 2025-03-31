@@ -10,6 +10,8 @@ import com.banking.app.mapper.AccountMapper;
 import com.banking.app.repository.AccountRepository;
 import com.banking.app.repository.TransactionRepository;
 import com.banking.app.service.AccountService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class AccountServiceImpl implements AccountService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
@@ -33,6 +37,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto createAccount(AccountDto accountDto) {
+        logger.info("Creating new account for {} ",accountDto.accountHolderName());
         Account account = AccountMapper.mapToAccount(accountDto);
         Account savedAccount = accountRepository.save(account);
         return AccountMapper.mapToAccountDto(savedAccount);
@@ -40,13 +45,16 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto getAccountById(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> new AccountException("Account does not exists"));
+        logger.info("Fetching account details for ID: {}",id);
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountException("Account does not exists"));
         return AccountMapper.mapToAccountDto(account);
 
     }
 
     @Override
     public AccountDto deposit(Long id, double amount) {
+        logger.info("Depositing {} to account ID: {}",amount,id);
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountException("Account does not exists"));
         double total = account.getBalance() + amount;
@@ -66,10 +74,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto withdraw(Long id, double amount) {
+        logger.info("Withdrawing {} from account ID: {}",amount, id);
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountException("Account does not exists"));
 
         if(account.getBalance() < amount){
+            logger.error("Insufficient balance for withdrawal from account ID: {}",id);
             throw new RuntimeException("Insufficient amount");
         }
 
@@ -103,6 +113,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transferFunds(TransferFundDto transferFundDto) {
+        logger.info("Transfering {} from account ID: {} to account ID: {}",
+                transferFundDto.amount(),
+                transferFundDto.fromAccountId(),
+                transferFundDto.toAccountId());
         // Retrieve the account from which we send the amount
         Account fromAccount = accountRepository.findById(transferFundDto.fromAccountId())
                 .orElseThrow(() -> new AccountException("Account does not exists"));
@@ -112,6 +126,7 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new AccountException("Account does not exists"));
 
         if(fromAccount.getBalance() < transferFundDto.amount()){
+            logger.error("Insufficient funds in account ID:{}",transferFundDto.fromAccountId());
             throw  new RuntimeException("Insufficient amount!");
         }
 
